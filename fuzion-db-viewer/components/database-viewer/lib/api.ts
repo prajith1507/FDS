@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://0shfds9x-4001.inc1.devtunnels.ms";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://obl-syncapi.fuzionest.com";
 const DATASOURCE_ID = "68f27a6ac61c21c5ebdf74f8";
 
 export interface ApiResponse {

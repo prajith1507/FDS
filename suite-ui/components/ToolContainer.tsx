@@ -9,30 +9,30 @@ interface ToolContainerProps {
 
 const toolUrls = {
   'dashboard': null, // Dashboard is handled locally
-  'db-viewer': 'http://localhost:4001',
-  'postman': 'http://localhost:4002',
-  'transformer': 'http://localhost:4003'
+  'db-viewer': process.env.NEXT_PUBLIC_DB_VIEWER_URL || 'http://localhost:4001',
+  'postman': process.env.NEXT_PUBLIC_POSTMAN_URL || 'http://localhost:4002',
+  'transformer': process.env.NEXT_PUBLIC_TRANSFORMER_URL || 'http://localhost:4003'
 }
 
 const toolConfig = {
   'db-viewer': {
     name: 'Database Explorer',
     icon: Database,
-    port: '4001',
+    port: process.env.DB_VIEWER_PORT || '4001',
     description: 'SQL and NoSQL database management with real-time queries',
     features: ['Multi-database support', 'Query builder', 'Schema visualization', 'Data export']
   },
   'postman': {
     name: 'API Testing Suite',
     icon: Send,
-    port: '4002',
+    port: process.env.POSTMAN_PORT || '4002',
     description: 'Comprehensive REST API testing and management platform',
     features: ['Request builder', 'Collection management', 'Environment variables', 'Response validation']
   },
   'transformer': {
     name: 'Data Transformer',
     icon: RefreshCw,
-    port: '4003',
+    port: process.env.TRANSFORMER_PORT || '4003',
     description: 'Advanced data processing and transformation engine',
     features: ['Data mapping', 'Batch processing', 'Format conversion', 'Workflow automation']
   }

@@ -16,10 +16,11 @@ import { useEnvironmentVariables } from "@/hooks/use-environment"
 
 import { updateCollectionKeys } from "@/lib/key-utils"
 
-const COLLECTIONS_URL = process.env.NEXT_PUBLIC_COLLECTIONS_URL || "https://0shfds9x-4001.inc1.devtunnels.ms/api/collections/"
-const BULK_UPDATE_URL = process.env.NEXT_PUBLIC_BULK_UPDATE_URL || "https://0shfds9x-4001.inc1.devtunnels.ms/api/collections/bulk-update"
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost"
+const COLLECTIONS_URL = process.env.NEXT_PUBLIC_COLLECTIONS_URL || "https://obl-syncapi.fuzionest.com/api/collections/"
+const BULK_UPDATE_URL = process.env.NEXT_PUBLIC_BULK_UPDATE_URL || "https://obl-syncapi.fuzionest.com/api/collections/bulk-update"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://obl-syncapi.fuzionest.com"
 const SAVE_API_ENDPOINT = process.env.NEXT_PUBLIC_SAVE_API_ENDPOINT || "/api/apis/create"
+const API_DETAILS_ENDPOINT = process.env.NEXT_PUBLIC_API_DETAILS_ENDPOINT || "/api/apis/key"
 
 const fetcher = (url: string) => {
   console.log("🌐 Fetching collections from:", url)
@@ -99,7 +100,7 @@ export default function Page() {
         setIsLoadingApiDetails(true)
         try {
           console.log(`Fetching API details for key: ${request.key}`)
-          const response = await fetch(`https://0shfds9x-4001.inc1.devtunnels.msapi/apis/key/${request.key}`)
+          const response = await fetch(`${API_BASE_URL}${API_DETAILS_ENDPOINT}/${request.key}`)
           
           if (response.ok) {
             const apiResponse = await response.json()

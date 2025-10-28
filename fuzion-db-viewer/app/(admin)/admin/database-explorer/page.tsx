@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -13,7 +13,7 @@ import { CollectionSelector } from "@/components/admin/database/collection-selec
 import { DatabaseExplorer } from "@/components/admin/database/database-explorer"
 import { ModernMongoExplorer } from "@/components/admin/database/modern-mongo-explorer"
 
-export default function DataViewerPage() {
+function DataViewerContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
@@ -184,5 +184,24 @@ export default function DataViewerPage() {
         )}
       </div>
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center space-y-4">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+        <p className="text-muted-foreground">Loading page...</p>
+      </div>
+    </div>
+  )
+}
+
+export default function DataViewerPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <DataViewerContent />
+    </Suspense>
   )
 }

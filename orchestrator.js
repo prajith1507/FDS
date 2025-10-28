@@ -1,38 +1,70 @@
 const { spawn } = require('child_process');
 const waitOn = require('wait-on');
 const path = require('path');
+const fs = require('fs');
 
-// Configuration
+// Load environment variables from .env file
+require('dotenv').config();
+
+// Function to sync global .env to all projects
+function syncEnvironmentFiles() {
+  console.log('🔄 Syncing global .env file to all projects...');
+  
+  const globalEnvPath = path.join(__dirname, '.env');
+  const projects = ['fuzion-db-viewer', 'fuzion-postman', 'fuzion-transformer', 'suite-ui'];
+  
+  if (!fs.existsSync(globalEnvPath)) {
+    console.error('❌ Global .env file not found!');
+    return false;
+  }
+  
+  let syncedCount = 0;
+  projects.forEach(project => {
+    try {
+      const targetPath = path.join(__dirname, project, '.env');
+      fs.copyFileSync(globalEnvPath, targetPath);
+      console.log(`✅ Synced to: ${project}`);
+      syncedCount++;
+    } catch (error) {
+      console.error(`❌ Failed to sync to ${project}:`, error.message);
+    }
+  });
+  
+  console.log(`📊 Synced ${syncedCount}/${projects.length} projects\n`);
+  return syncedCount === projects.length;
+}
+
+// Configuration with environment variable support
 const SERVICES = [
   {
     name: 'DB-VIEWER',
     dir: 'fuzion-db-viewer',
-    port: 4001,
-    url: 'http://localhost:4001',
+    port: process.env.DB_VIEWER_PORT || 4001,
+    url: process.env.DB_VIEWER_URL || 'http://localhost:4001',
     color: '\x1b[32m', // Green
     priority: 1
   },
   {
     name: 'POSTMAN',
     dir: 'fuzion-postman', 
-    port: 4002,
-    url: 'http://localhost:4002',
+    port: process.env.POSTMAN_PORT || 4002,
+    url: process.env.POSTMAN_URL || 'http://localhost:4002',
     color: '\x1b[33m', // Yellow
     priority: 2
   },
   {
     name: 'TRANSFORMER',
     dir: 'fuzion-transformer',
-    port: 4003,
-    url: 'http://localhost:4003',
+    port: process.env.TRANSFORMER_PORT || 4003,
+    url: process.env.TRANSFORMER_URL || 'http://localhost:4003',
     color: '\x1b[35m', // Magenta
     priority: 3
   },
   {
     name: 'SUITE-DASHBOARD',
     dir: 'suite-ui',
-    port: 3000,
-    url: 'http://localhost:3000',
+    port: process.env.SUITE_DASHBOARD_PORT || 3000,
+    url: process.env.SUITE_DASHBOARD_URL || 'http://localhost:3000',
     color: '\x1b[34m', // Blue
     priority: 4,
     isMain: true
@@ -124,6 +156,12 @@ class ServiceOrchestrator {
 
   async startAll() {
     console.log(`\n${BOLD}FUZIONEST DEVELOPMENT SUITE ORCHESTRATOR${RESET}\n`);
+    
+    // First, sync the global .env file to all projects
+    if (!syncEnvironmentFiles()) {
+      console.log('⚠️  Some .env files failed to sync, but continuing with startup...\n');
+    }
+    
     this.log(null, 'Starting orchestrated deployment workflow...');
     
     // Sort services by priority (excluding main dashboard)

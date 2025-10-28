@@ -299,17 +299,17 @@ Modern Data Viewer
 
 ```bash
 # Test collections endpoint
-curl http://0shfds9x-4001.inc1.devtunnels.ms/mongo/api/collections
+curl https://obl-syncapi.fuzionest.com/mongo/api/collections
 
 # Test specific collection
-curl http://0shfds9x-4001.inc1.devtunnels.ms/mongo/api/users?page=1&limit=10
+curl https://obl-syncapi.fuzionest.com/mongo/api/users?page=1&limit=10
 ```
 
 ### Check Datasource
 
 ```bash
 # Test datasource connection
-curl -X POST http://0shfds9x-4001.inc1.devtunnels.ms/api/datasources/{id}/test
+curl -X POST https://obl-syncapi.fuzionest.com/api/datasources/{id}/test
 ```
 
 ### Frontend Console

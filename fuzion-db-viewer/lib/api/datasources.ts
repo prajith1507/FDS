@@ -1,7 +1,7 @@
 import { AnyDatabaseConfig } from "@/lib/types/datasource";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://0shfds9x-4001.inc1.devtunnels.ms";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://obl-syncapi.fuzionest.com";
 
 export interface DatasourceCredentials {
   host?: string;

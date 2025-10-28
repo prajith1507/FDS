@@ -1,6 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { API_BASE_URL } from "@/lib/api-config"
 
+// This route uses searchParams, so it cannot be statically generated
+export const dynamic = 'force-dynamic'
+
 const TENANT_ID = "tenant_orient_bell"
 
 export async function GET(request: NextRequest) {

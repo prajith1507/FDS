@@ -82,7 +82,7 @@ function DatabaseViewerContent() {
   const loadCollections = async (id: string, type: string) => {
     setIsLoadingCollections(true)
     try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://0shfds9x-4001.inc1.devtunnels.ms'
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://obl-syncapi.fuzionest.com'
       
       // For MongoDB, fetch collections
       if (type === 'mongodb') {
@@ -172,7 +172,7 @@ function DatabaseViewerContent() {
     }
     
     try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://0shfds9x-4001.inc1.devtunnels.ms'
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://obl-syncapi.fuzionest.com'
       
       // Use passed dbType or fall back to state
       const type = dbType || datasourceType

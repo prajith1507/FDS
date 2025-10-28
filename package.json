@@ -2,10 +2,34 @@
   "name": "fuzionest-development-suite",
   "version": "1.0.0",
   "scripts": {
-    "dev": "node orchestrator.js"
+    "dev": "node orchestrator.js",
+    "build": "npm run build:db-viewer && npm run build:postman && npm run build:transformer && npm run build:suite",
+    "build-all": "powershell -ExecutionPolicy Bypass -File build-all.ps1",
+    "build:db-viewer": "cd fuzion-db-viewer && npm run build",
+    "build:postman": "cd fuzion-postman && npm run build", 
+    "build:transformer": "cd fuzion-transformer && npm run build",
+    "build:suite": "cd suite-ui && npm run build",
+    "start": "npm run start:production",
+    "start:production": "concurrently \"npm run start:db-viewer\" \"npm run start:postman\" \"npm run start:transformer\" \"npm run start:suite\"",
+    "start:db-viewer": "cd fuzion-db-viewer && npm start",
+    "start:postman": "cd fuzion-postman && npm start",
+    "start:transformer": "cd fuzion-transformer && npm start",
+    "start:suite": "cd suite-ui && npm start",
+    "build-and-start": "npm run build-all",
+    "deploy": "npm run build-all",
+    "deploy:vercel": "powershell -ExecutionPolicy Bypass -File deploy-vercel.ps1",
+    "build-for-vercel": "npm run build",
+    "install-all": "npm install && cd fuzion-db-viewer && npm install && cd ../fuzion-postman && npm install && cd ../fuzion-transformer && npm install && cd ../suite-ui && npm install",
+    "clean": "npm run clean:db-viewer && npm run clean:postman && npm run clean:transformer && npm run clean:suite",
+    "clean:db-viewer": "cd fuzion-db-viewer && if exist .next rmdir /s /q .next",
+    "clean:postman": "cd fuzion-postman && if exist .next rmdir /s /q .next",
+    "clean:transformer": "cd fuzion-transformer && if exist .next rmdir /s /q .next", 
+    "clean:suite": "cd suite-ui && if exist .next rmdir /s /q .next",
+    "sync-env": "powershell -ExecutionPolicy Bypass -File sync-env.ps1"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
+    "dotenv": "^16.4.5",
     "wait-on": "^9.0.1"
   }
 }

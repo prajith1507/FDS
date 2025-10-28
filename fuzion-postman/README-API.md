@@ -10,8 +10,8 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost
 NEXT_PUBLIC_SAVE_API_ENDPOINT=/api/apis/create
 
 # Collections API (if different from save API)
-NEXT_PUBLIC_COLLECTIONS_URL=https://0shfds9x-4001.inc1.devtunnels.msapi/collections/
-NEXT_PUBLIC_BULK_UPDATE_URL=https://0shfds9x-4001.inc1.devtunnels.msapi/collections/bulk-update
+NEXT_PUBLIC_COLLECTIONS_URL=https://obl-syncapi.fuzionest.com/api/collections/
+NEXT_PUBLIC_BULK_UPDATE_URL=https://obl-syncapi.fuzionest.com/api/collections/bulk-update
 ```
 
 ## API Endpoints

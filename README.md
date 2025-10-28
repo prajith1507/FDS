@@ -39,26 +39,46 @@ This will automatically start:
 
 ### **Development**
 ```bash
-npm run dev                 # Start all tools at once
-npm run dev:suite          # Start only dashboard
-npm run dev:db-viewer      # Start only DB viewer  
-npm run dev:postman        # Start only Postman
-npm run dev:transformer    # Start only Transformer
+npm run dev                 # Start all tools at once (auto-syncs .env)
+npm run start               # Sync .env and start all tools
+npm run sync-env            # Sync global .env to all projects
 ```
 
-### **Installation**
+### **Production Build & Start**
 ```bash
-npm run install-all        # Install dependencies for all tools
-npm run install:suite      # Install only suite dependencies
-npm run install:db-viewer  # Install only DB viewer dependencies
-npm run install:postman    # Install only Postman dependencies
-npm run install:transformer # Install only Transformer dependencies
+npm run build               # Build all tools for production
+npm run start               # Start all tools in production mode
+npm run build-and-start     # Build and start in one command
+
+# Individual production starts
+npm run start:db-viewer     # Start DB viewer in production
+npm run start:postman       # Start Postman in production
+npm run start:transformer   # Start Transformer in production
+npm run start:suite         # Start Suite in production
 ```
 
-### **Production Build**
+### **Individual Builds**
 ```bash
-npm run build              # Build all tools
-npm run build:suite        # Build only dashboard
+npm run build:db-viewer     # Build only DB viewer
+npm run build:postman       # Build only Postman
+npm run build:transformer   # Build only Transformer
+npm run build:suite         # Build only dashboard
+```
+
+### **Installation & Setup**
+```bash
+npm run install-all         # Install dependencies for all tools
+npm install                 # Install orchestrator dependencies
+```
+
+### **Maintenance**
+```bash
+npm run clean               # Clean all build artifacts
+npm run clean:db-viewer     # Clean DB viewer build
+npm run clean:postman       # Clean Postman build
+npm run clean:transformer   # Clean Transformer build
+npm run clean:suite         # Clean Suite build
+```
 npm run build:db-viewer    # Build only DB viewer
 npm run build:postman      # Build only Postman  
 npm run build:transformer  # Build only Transformer

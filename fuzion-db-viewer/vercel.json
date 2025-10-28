@@ -1,0 +1,22 @@
+{
+  "name": "fuzion-db-viewer",
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_API_BASE_URL": "@api_base_url",
+    "NEXT_PUBLIC_DATABASE_ENDPOINT": "/api/database",
+    "NEXT_PUBLIC_HEALTH_CHECK_ENDPOINT": "/api/health",
+    "DB_VIEWER_PORT": "4001"
+  }
+}
