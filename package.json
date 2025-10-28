@@ -1,0 +1,11 @@
+{
+  "name": "fuzionest-development-suite",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "node orchestrator.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "wait-on": "^9.0.1"
+  }
+}
