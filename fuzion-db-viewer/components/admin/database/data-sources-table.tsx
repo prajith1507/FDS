@@ -17,7 +17,6 @@ import {
   RefreshCw
 } from "lucide-react"
 import { AnyDatabaseConfig, DatabaseProvider } from "@/lib/types/datasource"
-import { PostmanAnalyticsBadge } from "@/components/admin/postman-analytics-badge"
 
 interface DataSourcesTableProps {
   dataSources: AnyDatabaseConfig[]
@@ -93,10 +92,7 @@ export function DataSourcesTable({
       {/* Header with Search and Refresh Controls */}
       <div className="flex justify-between items-start">
         <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold tracking-tight">Data Sources</h2>
-            <PostmanAnalyticsBadge autoRefresh={true} refreshInterval={30000} />
-          </div>
+          <h2 className="text-2xl font-bold tracking-tight">Data Sources</h2>
           <p className="text-sm text-muted-foreground">
             Manage your database connections and generate AI-powered dashboards.
           </p>

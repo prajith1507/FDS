@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react'
+import { fetchPostmanAnalytics, type PostmanAnalytics } from '../lib/api/postman-analytics'
 
 interface DashboardProps {
   onToolChange: (tool: string) => void
@@ -39,6 +40,7 @@ const useRealTimeAnalytics = () => {
     totalFunctions: 0,
     lastUpdated: new Date().toISOString()
   })
+  const [postmanAnalytics, setPostmanAnalytics] = useState<PostmanAnalytics | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -88,25 +90,35 @@ const useRealTimeAnalytics = () => {
         totalDataSources = 0 // Fallback value
       }
 
-      // Fetch API collections count from Postman
+      // Fetch API collections count from Postman with detailed analytics
       try {
-        console.log('[Dashboard] Fetching API collections from:', `${POSTMAN_URL}/api/collections`)
-        const apiResponse = await fetchWithTimeout(`${POSTMAN_URL}/api/collections`)
-        
-        if (apiResponse.ok) {
-          const apiData = await apiResponse.json()
-          console.log('[Dashboard] API collections response:', apiData)
-          const items = Array.isArray(apiData) ? apiData :
-                       Array.isArray(apiData.items) ? apiData.items :
-                       Array.isArray(apiData.item) ? apiData.item :
-                       Array.isArray(apiData.data) ? apiData.data : []
-          apiConnected = items.length
-        } else {
-          console.error('[Dashboard] Failed to fetch API collections:', apiResponse.status, apiResponse.statusText)
-        }
+        console.log('[Dashboard] Fetching Postman analytics...')
+        const postmanData = await fetchPostmanAnalytics()
+        console.log('[Dashboard] Postman analytics:', postmanData)
+        setPostmanAnalytics(postmanData)
+        apiConnected = postmanData.totalRequests // Count total API requests, not folders
       } catch (error) {
-        console.error('[Dashboard] Error fetching API collections:', error)
-        apiConnected = 0 // Fallback value
+        console.error('[Dashboard] Error fetching Postman analytics:', error)
+        // Fallback to simple collection count
+        try {
+          console.log('[Dashboard] Falling back to simple collections fetch from:', `${POSTMAN_URL}/api/collections`)
+          const apiResponse = await fetchWithTimeout(`${POSTMAN_URL}/api/collections`)
+          
+          if (apiResponse.ok) {
+            const apiData = await apiResponse.json()
+            console.log('[Dashboard] API collections response:', apiData)
+            const items = Array.isArray(apiData) ? apiData :
+                         Array.isArray(apiData.items) ? apiData.items :
+                         Array.isArray(apiData.item) ? apiData.item :
+                         Array.isArray(apiData.data) ? apiData.data : []
+            apiConnected = items.length
+          } else {
+            console.error('[Dashboard] Failed to fetch API collections:', apiResponse.status, apiResponse.statusText)
+          }
+        } catch (fallbackError) {
+          console.error('[Dashboard] Fallback fetch also failed:', fallbackError)
+          apiConnected = 0
+        }
       }
 
       // Fetch transformation functions count from Transformer
@@ -182,7 +194,7 @@ const useRealTimeAnalytics = () => {
     return () => clearInterval(interval)
   }, [])
 
-  return { analytics, loading, error, refetch: fetchAnalytics }
+  return { analytics, postmanAnalytics, loading, error, refetch: fetchAnalytics }
 }
 
 // Move analytics data and hook outside of component scope to prevent hook order issues
@@ -383,7 +395,7 @@ const RecentActivity = React.memo(({ activities }: { activities: any[] }) => (
 ))
 
 const Dashboard = React.memo(function Dashboard({ onToolChange }: DashboardProps) {
-  const { analytics: realTimeAnalytics, loading: realTimeLoading, error: realTimeError, refetch } = useRealTimeAnalytics()
+  const { analytics: realTimeAnalytics, postmanAnalytics, loading: realTimeLoading, error: realTimeError, refetch } = useRealTimeAnalytics()
   const [isClient, setIsClient] = useState(false)
   
   // Prevent hydration mismatch by only rendering time on client
@@ -467,7 +479,7 @@ const Dashboard = React.memo(function Dashboard({ onToolChange }: DashboardProps
                 </div>
               </div>
 
-              {/* API Connected */}
+              {/* API Connected with total count only */}
               <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-green-500 rounded-lg text-white">
@@ -477,11 +489,11 @@ const Dashboard = React.memo(function Dashboard({ onToolChange }: DashboardProps
                     <div className="text-3xl font-bold text-green-700">
                       {realTimeLoading ? '--' : realTimeAnalytics.apiConnected}
                     </div>
-                    <div className="text-green-600 text-sm font-medium">API Connected</div>
+                    <div className="text-green-600 text-sm font-medium">Total APIs</div>
                   </div>
                 </div>
                 <div className="text-sm text-green-600">
-                  Active API collections and endpoints
+                  Active API collections
                 </div>
               </div>
 
