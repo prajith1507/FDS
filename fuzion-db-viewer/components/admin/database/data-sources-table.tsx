@@ -9,23 +9,17 @@ import { Input } from "@/components/ui/input"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { 
   Search, 
-  Edit, 
+  Pencil, 
   Trash2, 
   Database,
   Plus,
   Eye,
-  RefreshCw,
-  Clock,
-  ToggleLeft,
-  ToggleRight
+  RefreshCw
 } from "lucide-react"
 import { AnyDatabaseConfig, DatabaseProvider } from "@/lib/types/datasource"
-import { SimpleStatusBadge } from "./simple-status-badge"
-import { useDataSourcesStatus } from "@/hooks/use-datasources-status"
 
 interface DataSourcesTableProps {
   dataSources: AnyDatabaseConfig[]
-  newlyAddedIds?: Set<string>
   onEdit: (dataSource: AnyDatabaseConfig) => void
   onDelete: (id: string) => void
   onTestConnection: (dataSource: AnyDatabaseConfig) => void
@@ -33,17 +27,11 @@ interface DataSourcesTableProps {
   onViewData?: (dataSource: AnyDatabaseConfig) => void
   onAddNew: () => void
   onRefresh?: () => void
-  autoRefreshEnabled?: boolean
-  onToggleAutoRefresh?: (enabled: boolean) => void
   isLoading?: boolean
-  isRefreshing?: boolean
-  lastRefreshTime?: Date | null
-  nextRefreshIn?: number
 }
 
 export function DataSourcesTable({
   dataSources,
-  newlyAddedIds = new Set(),
   onEdit,
   onDelete,
   onTestConnection,
@@ -51,24 +39,17 @@ export function DataSourcesTable({
   onViewData,
   onAddNew,
   onRefresh,
-  autoRefreshEnabled = true,
-  onToggleAutoRefresh,
-  isLoading = false,
-  isRefreshing = false,
-  lastRefreshTime,
-  nextRefreshIn = 30
+  isLoading = false
 }: DataSourcesTableProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [selectedDataSource, setSelectedDataSource] = useState<AnyDatabaseConfig | null>(null)
 
-  // Use centralized status management
-  const { getStatus, refreshStatus } = useDataSourcesStatus(dataSources, true, 30000)
-
   const filteredDataSources = dataSources.filter(ds =>
     ds.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     ds.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ds.host?.toLowerCase().includes(searchQuery.toLowerCase())
+    (ds.host && ds.host.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (ds.database && ds.database.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
   const handleDelete = (dataSource: AnyDatabaseConfig) => {
@@ -117,34 +98,15 @@ export function DataSourcesTable({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {/* Auto Refresh Toggle */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock className="h-4 w-4" />
-            <span>Auto refresh</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-12 p-0"
-              onClick={() => onToggleAutoRefresh?.(!autoRefreshEnabled)}
-            >
-              {autoRefreshEnabled ? (
-                <ToggleRight className="h-5 w-5 text-primary" />
-              ) : (
-                <ToggleLeft className="h-5 w-5 text-muted-foreground" />
-              )}
-            </Button>
-          </div>
-          
           {/* Manual Refresh Button */}
           <Button
             variant="outline"
             size="sm"
             onClick={onRefresh}
-            disabled={isRefreshing}
             className="gap-2"
           >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            {isRefreshing ? 'Refreshing...' : 'Refresh'}
+            <RefreshCw className="h-4 w-4" />
+            Refresh
           </Button>
           
           {/* Add Data Source Button */}
@@ -154,22 +116,6 @@ export function DataSourcesTable({
           </Button>
         </div>
       </div>
-
-      {/* Refresh Status */}
-      {(lastRefreshTime || autoRefreshEnabled) && (
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          {lastRefreshTime && (
-            <span>
-              Last updated: {lastRefreshTime.toLocaleTimeString()}
-            </span>
-          )}
-          {autoRefreshEnabled && (
-            <span>
-              Next refresh in: {nextRefreshIn}s
-            </span>
-          )}
-        </div>
-      )}
 
       {/* Search */}
       <div className="relative w-full max-w-sm">
@@ -222,36 +168,24 @@ export function DataSourcesTable({
           </div>
         ) : (
           filteredDataSources.map((dataSource: AnyDatabaseConfig) => {
-            const isNewlyAdded = dataSource.id && newlyAddedIds.has(dataSource.id)
             return (
               <Card 
                 key={dataSource.id} 
-                className={`transition-all duration-300 hover:shadow-md ${
-                  isNewlyAdded 
-                    ? 'animate-fade-in-up opacity-0' 
-                    : 'opacity-100'
-                }`}
+                className="transition-all duration-300 hover:shadow-md"
               >
                 <CardContent className="p-6">
-                  {/* Main Title with Status Badge */}
+                  {/* Main Title without Status Badge */}
                   <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-lg font-semibold text-foreground">{dataSource.name}</h3>
-                      {dataSource.id && (
-                        <SimpleStatusBadge 
-                          statusState={getStatus(dataSource.id)} 
-                          onRefresh={() => dataSource.id && refreshStatus(dataSource.id)}
-                        />
-                      )}
-                    </div>
+                    <h3 className="text-lg font-semibold text-foreground">{dataSource.name}</h3>
                     
-                    {/* Action buttons - always visible */}
-                    <div className="flex gap-2">
+                    {/* Action buttons - always visible with consistent styling */}
+                    <div className="flex gap-1">
                       <Button 
                         variant="ghost" 
-                        size="sm" 
-                        className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
+                        size="icon"
+                        className="h-8 w-8 text-blue-600 hover:text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950"
                         onClick={(e) => {
+                          e.preventDefault()
                           e.stopPropagation()
                           if (onViewData) {
                             onViewData(dataSource)
@@ -263,21 +197,23 @@ export function DataSourcesTable({
                       </Button>
                       <Button 
                         variant="ghost" 
-                        size="sm" 
-                        className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
+                        size="icon"
+                        className="h-8 w-8 text-blue-600 hover:text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950"
                         onClick={(e) => {
+                          e.preventDefault()
                           e.stopPropagation()
                           onEdit(dataSource)
                         }}
                         title="Edit"
                       >
-                        <Edit className="h-4 w-4" />
+                        <Pencil className="h-4 w-4" />
                       </Button>
                       <Button 
                         variant="ghost" 
-                        size="sm" 
-                        className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                         onClick={(e) => {
+                          e.preventDefault()
                           e.stopPropagation()
                           handleDelete(dataSource)
                         }}

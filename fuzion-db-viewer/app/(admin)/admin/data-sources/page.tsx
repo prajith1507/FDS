@@ -7,7 +7,6 @@ import { DatabaseConfigForm } from "@/components/admin/database/database-config-
 import { DataSourcesTable } from "@/components/admin/database/data-sources-table"
 import { DatabaseProvider, AnyDatabaseConfig } from "@/lib/types/datasource"
 import { useToast } from "@/hooks/use-toast"
-import { usePagePersistence } from "@/hooks/use-page-persistence"
 import {
   getDatasources,
   createDatasource,
@@ -23,9 +22,7 @@ type ViewMode = 'list' | 'add' | 'edit'
 export default function DataSourcesPage() {
   const { toast } = useToast()
   const router = useRouter()
-  const { currentPage } = usePagePersistence() // Add page persistence
   const [dataSources, setDataSources] = useState<AnyDatabaseConfig[]>([])
-  const [newlyAddedIds, setNewlyAddedIds] = useState<Set<string>>(new Set()) // Track newly added items
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [selectedProvider, setSelectedProvider] = useState<DatabaseProvider | null>(null)
   const [editingDataSource, setEditingDataSource] = useState<AnyDatabaseConfig | null>(null)
@@ -33,16 +30,8 @@ export default function DataSourcesPage() {
   const [configFormOpen, setConfigFormOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true)
-  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null)
-  const [nextRefreshIn, setNextRefreshIn] = useState(30)
 
-  // Log the current page for debugging
-  useEffect(() => {
-    console.log('[DataSources Page] Current page:', currentPage)
-  }, [currentPage])
-
-  // Load data sources on mount and set up real-time polling
+  // Load data sources on mount
   useEffect(() => {
     const loadDataSources = async () => {
       setIsLoading(true)
@@ -53,7 +42,6 @@ export default function DataSourcesPage() {
         const configs = response.map(payloadToConfig)
         console.log('[DataSources Page] Converted configs:', configs)
         setDataSources(configs)
-        setLastRefreshTime(new Date())
       } catch (error) {
         console.error('[DataSources Page] Error loading datasources:', error)
         toast({
@@ -67,102 +55,17 @@ export default function DataSourcesPage() {
     }
 
     loadDataSources()
-
-    // Set up real-time polling every 30 seconds to check for new data sources (only if auto-refresh is enabled)
-    let pollInterval: NodeJS.Timeout | null = null
-    let countdownInterval: NodeJS.Timeout | null = null
-
-    const setupPolling = () => {
-      if (!autoRefreshEnabled) return
-
-      // Reset countdown
-      setNextRefreshIn(30)
-
-      // Countdown timer
-      countdownInterval = setInterval(() => {
-        setNextRefreshIn(prev => {
-          if (prev <= 1) {
-            return 30 // Reset when reaching 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-
-      // Polling interval
-      pollInterval = setInterval(async () => {
-        if (!autoRefreshEnabled) return
-
-        try {
-          console.log('[DataSources Page] Auto-polling for new datasources...')
-          const response = await getDatasources()
-          const newConfigs = response.map(payloadToConfig)
-          
-          // Only update if there are actual changes to avoid unnecessary re-renders
-          setDataSources(prevDataSources => {
-            const hasChanges = newConfigs.length !== prevDataSources.length ||
-              newConfigs.some(newConfig => 
-                !prevDataSources.find(prev => prev.id === newConfig.id)
-              )
-            
-            if (hasChanges) {
-              console.log('[DataSources Page] New data sources detected via auto-refresh, updating list...')
-              
-              // Identify newly added data sources
-              const newIds = new Set<string>()
-              newConfigs.forEach(newConfig => {
-                if (newConfig.id && !prevDataSources.find(prev => prev.id === newConfig.id)) {
-                  newIds.add(newConfig.id)
-                }
-              })
-              
-              if (newIds.size > 0) {
-                console.log('[DataSources Page] New data sources for animation:', Array.from(newIds))
-                setNewlyAddedIds(newIds)
-                
-                // Clear the newly added state after animation duration
-                setTimeout(() => {
-                  setNewlyAddedIds(new Set())
-                }, 1000) // 1 second for fade-in animation
-              }
-              
-              setLastRefreshTime(new Date())
-              return newConfigs
-            }
-            
-            return prevDataSources
-          })
-        } catch (error) {
-          console.error('[DataSources Page] Error polling datasources:', error)
-          // Don't show error toast for background polling failures
-        }
-      }, 30000) // Poll every 30 seconds
-    }
-
-    setupPolling()
-
-    // Cleanup intervals on unmount or when auto-refresh changes
-    return () => {
-      if (pollInterval) clearInterval(pollInterval)
-      if (countdownInterval) clearInterval(countdownInterval)
-    }
-  }, [toast, autoRefreshEnabled]) // Re-run when autoRefreshEnabled changes
+  }, [toast])
 
   // Function to refresh data sources list
   const refreshDataSources = async () => {
     setIsRefreshing(true)
     try {
-      console.log('[DataSources Page] Manual refresh datasources...')
+      console.log('[DataSources Page] Refreshing datasources...')
       const response = await getDatasources()
       const configs = response.map(payloadToConfig)
       setDataSources(configs)
-      setLastRefreshTime(new Date())
-      setNextRefreshIn(30) // Reset countdown
       console.log('[DataSources Page] Data sources refreshed successfully, count:', configs.length)
-      
-      toast({
-        title: "Refreshed",
-        description: `Updated ${configs.length} data source${configs.length !== 1 ? 's' : ''}`,
-      })
     } catch (error) {
       console.error('[DataSources Page] Error refreshing datasources:', error)
       toast({
@@ -210,25 +113,10 @@ export default function DataSourcesPage() {
         
         // Optimistically add to local state for immediate UI feedback
         const newConfig = payloadToConfig(savedDataSource)
-        
-        if (newConfig.id) {
-          // Mark as newly added for fade-in animation
-          setNewlyAddedIds(prev => new Set([...prev, newConfig.id!]))
-          
-          // Clear the newly added state after animation duration
-          setTimeout(() => {
-            setNewlyAddedIds(prev => {
-              const newSet = new Set(prev)
-              newSet.delete(newConfig.id!)
-              return newSet
-            })
-          }, 1000) // 1 second for fade-in animation
-        }
-        
         setDataSources(prev => [...prev, newConfig])
       }
       
-      console.log('[DataSources Page] Save successful, performing immediate refresh...')
+      console.log('[DataSources Page] Save successful, performing background refresh...')
       
       // Close all forms immediately after optimistic update
       setConfigFormOpen(false)
@@ -237,15 +125,14 @@ export default function DataSourcesPage() {
       setSelectedProvider(null)
       setEditingDataSource(null)
       
-      // Perform immediate refresh to ensure consistency and catch any other changes
-      try {
-        await refreshDataSources()
-      } catch (error) {
-        console.error('[DataSources Page] Immediate refresh failed:', error)
-        // If immediate refresh fails, the optimistic update is still valid
-      }
+      // Refresh the data sources list in background to ensure consistency
+      // Don't await this to keep UI responsive
+      refreshDataSources().catch(error => {
+        console.error('[DataSources Page] Background refresh failed:', error)
+        // If background refresh fails, the optimistic update is still valid
+      })
       
-      console.log('[DataSources Page] Data source save and refresh complete')
+      console.log('[DataSources Page] Optimistic update complete')
       
     } catch (error) {
       console.error('[DataSources Page] Error saving datasource:', error)
@@ -398,20 +285,13 @@ export default function DataSourcesPage() {
     <div className="container mx-auto py-8 px-4">
       <DataSourcesTable
         dataSources={dataSources}
-        newlyAddedIds={newlyAddedIds}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onTestConnection={handleTestConnection}
         onViewTables={handleViewTables}
         onViewData={handleViewData}
         onAddNew={handleAddNew}
-        onRefresh={refreshDataSources}
-        autoRefreshEnabled={autoRefreshEnabled}
-        onToggleAutoRefresh={setAutoRefreshEnabled}
-        isLoading={isLoading}
-        isRefreshing={isRefreshing}
-        lastRefreshTime={lastRefreshTime}
-        nextRefreshIn={nextRefreshIn}
+        isLoading={isLoading || isRefreshing}
       />
 
       <DatabaseSourceSelector
