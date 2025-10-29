@@ -122,6 +122,8 @@ function parseFolder(folderData: any, parentPath: string[] = []): PostmanFolder 
  * Parse a Postman collection
  */
 function parseCollection(collectionData: any): PostmanCollection {
+  console.log('[Postman Analytics] Parsing collection:', collectionData.name || collectionData.info?.name);
+  
   const collection: PostmanCollection = {
     id: collectionData.id || collectionData._id || collectionData.info?.id || Math.random().toString(36),
     name: collectionData.name || collectionData.info?.name || 'Unnamed Collection',
@@ -132,9 +134,14 @@ function parseCollection(collectionData: any): PostmanCollection {
     lastUpdated: collectionData.updatedAt || collectionData.updated_at || new Date().toISOString(),
   };
   
+  console.log('[Postman Analytics] Collection has item array?', !!collectionData.item);
+  console.log('[Postman Analytics] Collection item length:', collectionData.item?.length);
+  
   // Handle Postman collection format
   if (collectionData.item && Array.isArray(collectionData.item)) {
-    collectionData.item.forEach((item: any) => {
+    console.log('[Postman Analytics] Processing', collectionData.item.length, 'items in collection');
+    collectionData.item.forEach((item: any, index: number) => {
+      console.log(`[Postman Analytics] Item ${index}:`, item.name, 'has request?', !!item.request, 'has item?', !!item.item);
       if (item.request) {
         // Root-level request (not in a folder)
         collection.rootRequests.push({
@@ -145,10 +152,13 @@ function parseCollection(collectionData: any): PostmanCollection {
             ? item.request.url 
             : item.request.url?.raw || '',
         });
+        console.log('[Postman Analytics] Added root request:', item.name);
       } else if (item.item) {
         // It's a folder
+        console.log('[Postman Analytics] Found folder:', item.name);
         const folder = parseFolder(item, []);
         collection.folders.push(folder);
+        console.log('[Postman Analytics] Folder', item.name, 'has', folder.totalRequestCount, 'requests');
       }
     });
   }
@@ -183,6 +193,13 @@ function parseCollection(collectionData: any): PostmanCollection {
   collection.totalRequests = collection.rootRequests.length + 
     collection.folders.reduce((sum, folder) => sum + folder.totalRequestCount, 0);
   
+  console.log('[Postman Analytics] Collection', collection.name, 'final count:', {
+    totalRequests: collection.totalRequests,
+    rootRequests: collection.rootRequests.length,
+    folders: collection.folders.length,
+    requestsInFolders: collection.folders.reduce((sum, folder) => sum + folder.totalRequestCount, 0)
+  });
+  
   return collection;
 }
 
@@ -206,22 +223,31 @@ export async function fetchPostmanAnalytics(): Promise<PostmanAnalytics> {
     }
     
     const data = await response.json();
-    console.log('[Postman Analytics] Raw response:', data);
+    console.log('[Postman Analytics] Raw response:', JSON.stringify(data, null, 2));
     
     // Handle different response formats
     let collectionsData: any[] = [];
     
     if (Array.isArray(data)) {
+      console.log('[Postman Analytics] Data is array');
       collectionsData = data;
     } else if (data.collections && Array.isArray(data.collections)) {
+      console.log('[Postman Analytics] Data has collections array');
       collectionsData = data.collections;
     } else if (data.data && Array.isArray(data.data)) {
+      console.log('[Postman Analytics] Data has data array');
       collectionsData = data.data;
     } else if (data.data?.collections && Array.isArray(data.data.collections)) {
+      console.log('[Postman Analytics] Data has data.collections array');
       collectionsData = data.data.collections;
+    } else {
+      console.warn('[Postman Analytics] Unknown data format, trying to use data directly');
+      // If it's a single collection object, wrap it in an array
+      collectionsData = [data];
     }
     
     console.log('[Postman Analytics] Found', collectionsData.length, 'collections');
+    console.log('[Postman Analytics] First collection sample:', JSON.stringify(collectionsData[0], null, 2));
     
     // Parse all collections
     const collections = collectionsData.map(parseCollection);
