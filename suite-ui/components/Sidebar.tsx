@@ -18,6 +18,8 @@ import {
   PanelLeft
 } from 'lucide-react'
 import clsx from 'clsx'
+import { useAuth } from '@/contexts/AuthContext'
+import ProfileSettings from './ProfileSettings'
 
 export type Tool = 'dashboard' | 'db-viewer' | 'postman' | 'transformer'
 
@@ -65,8 +67,9 @@ const serviceStatus = {
 } as const
 
 export default function Sidebar({ activeTool, onToolChange }: SidebarProps) {
+  const { user } = useAuth()
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const [showUserMenu, setShowUserMenu] = useState(false)
+  const [showProfileSettings, setShowProfileSettings] = useState(false)
 
   // Memoize filtered items to prevent re-computation
   const mainItems = useMemo(() => menuItems.filter(item => item.category === 'main'), [])
@@ -74,7 +77,6 @@ export default function Sidebar({ activeTool, onToolChange }: SidebarProps) {
 
   // Optimize toggle handlers
   const toggleCollapse = useCallback(() => setIsCollapsed(prev => !prev), [])
-  const toggleUserMenu = useCallback(() => setShowUserMenu(prev => !prev), [])
 
   return (
     <div className={clsx(
@@ -183,17 +185,38 @@ export default function Sidebar({ activeTool, onToolChange }: SidebarProps) {
         </div>
       </nav>
 
-      {/* Footer */}
-      {!isCollapsed && (
-        <div className="px-4 py-4 mt-auto bg-gray-50">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-            <span className="text-xs text-black font-medium">All services running</span>
-          </div>
-          <div className="text-xs text-black font-medium">
-            Version 1.0.0
-          </div>
-        </div>
+      {/* User Profile Footer */}
+      <div className="px-3 py-4 border-t border-gray-200">
+        {isCollapsed ? (
+          <button
+            onClick={() => setShowProfileSettings(true)}
+            className="w-full p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center"
+            title={user?.name || 'User Profile'}
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+              {user?.name?.charAt(0) || 'U'}
+            </div>
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowProfileSettings(true)}
+            className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+              {user?.name?.charAt(0) || 'U'}
+            </div>
+            <div className="flex-1 text-left overflow-hidden">
+              <div className="font-semibold text-sm text-gray-900 truncate">{user?.name || 'User'}</div>
+              <div className="text-xs text-gray-500 truncate">{user?.email || 'user@example.com'}</div>
+            </div>
+            <Settings size={18} className="text-gray-400 flex-shrink-0" />
+          </button>
+        )}
+      </div>
+
+      {/* Profile Settings Modal */}
+      {showProfileSettings && (
+        <ProfileSettings onClose={() => setShowProfileSettings(false)} />
       )}
     </div>
   )
