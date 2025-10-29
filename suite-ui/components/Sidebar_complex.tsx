@@ -183,7 +183,7 @@ export default function Sidebar({ activeTool, onToolChange }: SidebarProps) {
                           <span className="font-medium">{item.label}</span>
                           <div className={clsx(
                             'w-2 h-2 rounded-full',
-                            status === 'running' ? 'bg-green-500' : 'bg-red-500'
+                            status === 'running' ? 'bg-blue-600' : 'bg-gray-400'
                           )} />
                         </div>
                         <div className="text-xs text-gray-500">{item.description}</div>

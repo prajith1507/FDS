@@ -13,7 +13,11 @@ import {
   Trash2, 
   Database,
   Plus,
-  Eye
+  Eye,
+  RefreshCw,
+  Clock,
+  ToggleLeft,
+  ToggleRight
 } from "lucide-react"
 import { AnyDatabaseConfig, DatabaseProvider } from "@/lib/types/datasource"
 import { SimpleStatusBadge } from "./simple-status-badge"
@@ -21,24 +25,38 @@ import { useDataSourcesStatus } from "@/hooks/use-datasources-status"
 
 interface DataSourcesTableProps {
   dataSources: AnyDatabaseConfig[]
+  newlyAddedIds?: Set<string>
   onEdit: (dataSource: AnyDatabaseConfig) => void
   onDelete: (id: string) => void
   onTestConnection: (dataSource: AnyDatabaseConfig) => void
   onViewTables: (dataSource: AnyDatabaseConfig) => void
   onViewData?: (dataSource: AnyDatabaseConfig) => void
   onAddNew: () => void
+  onRefresh?: () => void
+  autoRefreshEnabled?: boolean
+  onToggleAutoRefresh?: (enabled: boolean) => void
   isLoading?: boolean
+  isRefreshing?: boolean
+  lastRefreshTime?: Date | null
+  nextRefreshIn?: number
 }
 
 export function DataSourcesTable({
   dataSources,
+  newlyAddedIds = new Set(),
   onEdit,
   onDelete,
   onTestConnection,
   onViewTables,
   onViewData,
   onAddNew,
-  isLoading = false
+  onRefresh,
+  autoRefreshEnabled = true,
+  onToggleAutoRefresh,
+  isLoading = false,
+  isRefreshing = false,
+  lastRefreshTime,
+  nextRefreshIn = 30
 }: DataSourcesTableProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -90,19 +108,68 @@ export function DataSourcesTable({
 
   return (
     <div className="space-y-4">
-      {/* Header with Search */}
-      <div className="flex justify-between items-center">
+      {/* Header with Search and Refresh Controls */}
+      <div className="flex justify-between items-start">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold tracking-tight">Data Sources</h2>
           <p className="text-muted-foreground">
             Manage your database connections and generate AI-powered dashboards.
           </p>
         </div>
-        <Button onClick={onAddNew}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Data Source
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Auto Refresh Toggle */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Clock className="h-4 w-4" />
+            <span>Auto refresh</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-12 p-0"
+              onClick={() => onToggleAutoRefresh?.(!autoRefreshEnabled)}
+            >
+              {autoRefreshEnabled ? (
+                <ToggleRight className="h-5 w-5 text-primary" />
+              ) : (
+                <ToggleLeft className="h-5 w-5 text-muted-foreground" />
+              )}
+            </Button>
+          </div>
+          
+          {/* Manual Refresh Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
+          </Button>
+          
+          {/* Add Data Source Button */}
+          <Button onClick={onAddNew}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Data Source
+          </Button>
+        </div>
       </div>
+
+      {/* Refresh Status */}
+      {(lastRefreshTime || autoRefreshEnabled) && (
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          {lastRefreshTime && (
+            <span>
+              Last updated: {lastRefreshTime.toLocaleTimeString()}
+            </span>
+          )}
+          {autoRefreshEnabled && (
+            <span>
+              Next refresh in: {nextRefreshIn}s
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Search */}
       <div className="relative w-full max-w-sm">
@@ -155,8 +222,16 @@ export function DataSourcesTable({
           </div>
         ) : (
           filteredDataSources.map((dataSource: AnyDatabaseConfig) => {
+            const isNewlyAdded = dataSource.id && newlyAddedIds.has(dataSource.id)
             return (
-              <Card key={dataSource.id} className="transition-shadow hover:shadow-md">
+              <Card 
+                key={dataSource.id} 
+                className={`transition-all duration-300 hover:shadow-md ${
+                  isNewlyAdded 
+                    ? 'animate-fade-in-up opacity-0' 
+                    : 'opacity-100'
+                }`}
+              >
                 <CardContent className="p-6">
                   {/* Main Title with Status Badge */}
                   <div className="flex items-center justify-between mb-4">

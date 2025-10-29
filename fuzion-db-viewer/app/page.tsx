@@ -15,6 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
+import { usePageRestore } from "@/components/page-persistence"
 import {
   getDatasources,
   deleteDatasource,
@@ -34,6 +35,9 @@ import { DatabaseConfigForm } from "@/components/admin/database/database-config-
 export default function DataSourcesListPage() {
   const router = useRouter()
   const { toast } = useToast()
+  
+  // Use page restore hook to handle browser refresh
+  usePageRestore()
 
   const [dataSources, setDataSources] = useState<AnyDatabaseConfig[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -199,7 +203,7 @@ export default function DataSourcesListPage() {
           </div>
           <Button
             onClick={handleAddNew}
-            className="bg-[oklch(0.45_0.15_250)] text-white hover:opacity-90"
+            style={{ backgroundColor: "#0056a4" }}
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Data Source
@@ -216,7 +220,7 @@ export default function DataSourcesListPage() {
             <p className="text-sm text-muted-foreground mb-4">
               Get started by connecting your first database.
             </p>
-            <Button onClick={handleAddNew}>
+            <Button onClick={handleAddNew} style={{ backgroundColor: "#0056a4" }}>
               <Plus className="h-4 w-4 mr-2" /> Add Data Source
             </Button>
           </div>

@@ -58,7 +58,7 @@ export function SaveDialog({ open, onClose, payload }: SaveDialogProps) {
             <Button variant="outline" onClick={onClose}>
               Close
             </Button>
-            <Button onClick={handleSave} disabled={saving || saved}>
+            <Button onClick={handleSave} disabled={saving || saved} style={{ backgroundColor: "#0056a4" }}>
               {saving ? "Saving..." : saved ? "Saved!" : "Save"}
             </Button>
           </div>

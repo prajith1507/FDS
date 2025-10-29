@@ -349,6 +349,7 @@ export function ResponsePanel({ response, onSaveSampleResponse, savedSample }: P
                     <Button 
                       onClick={handleSaveSample}
                       disabled={isGeneratingSample || isSavingSample || !editableSample.trim()}
+                      style={{ backgroundColor: "#0056a4" }}
                     >
                       {isSavingSample ? (
                         <>

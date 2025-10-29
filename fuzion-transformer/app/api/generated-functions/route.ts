@@ -3,6 +3,16 @@ import { API_BASE_URL } from "@/lib/api-config"
 
 const TENANT_ID = "507f1f77bcf86cd799439011"
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-tenant-id',
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders })
+}
+
 export async function GET() {
   try {
     const url = `${API_BASE_URL}/api/generated-functions`
@@ -25,18 +35,19 @@ export async function GET() {
       console.error("[v0] Fetch functions API error:", response.status, errorText)
       return NextResponse.json(
         { error: `API returned ${response.status}: ${errorText || response.statusText}` },
-        { status: response.status },
+        { status: response.status, headers: corsHeaders },
       )
     }
 
     const data = await response.json()
-    console.log("[v0] Fetch functions response received, count:", data?.length || 0)
-    return NextResponse.json(data)
+    console.log("[v0] Fetch functions response received, count:", Array.isArray(data) ? data.length : 'unknown')
+    console.log("[v0] Fetch functions response data:", data)
+    return NextResponse.json(data, { headers: corsHeaders })
   } catch (error) {
     console.error("[v0] Error fetching generated functions:", error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to fetch generated functions" },
-      { status: 500 },
+      { status: 500, headers: corsHeaders },
     )
   }
 }
@@ -76,18 +87,18 @@ export async function POST(request: NextRequest) {
       console.error("[v0] Save function API error:", response.status, errorText)
       return NextResponse.json(
         { error: `API returned ${response.status}: ${errorText || response.statusText}` },
-        { status: response.status },
+        { status: response.status, headers: corsHeaders },
       )
     }
 
     const data = await response.json()
     console.log("[v0] Save function response received:", data)
-    return NextResponse.json(data)
+    return NextResponse.json(data, { headers: corsHeaders })
   } catch (error) {
     console.error("[v0] Error saving generated function:", error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to save generated function" },
-      { status: 500 },
+      { status: 500, headers: corsHeaders },
     )
   }
 }

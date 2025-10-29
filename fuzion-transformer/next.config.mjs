@@ -6,6 +6,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Ensure proper client-side routing
+  trailingSlash: false,
 }
 
 export default nextConfig

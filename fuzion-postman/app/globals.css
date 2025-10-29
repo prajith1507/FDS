@@ -39,7 +39,7 @@
   --sidebar-ring: oklch(0.708 0 0);
 
   /* Postman-like design tokens (brand + surfaces + method tags) */
-  --pm-brand: #ff6c37; /* Postman-like orange */
+  --pm-brand: #0056a4; /* Blue to match theme oklch(0.3 0.15 250) */
   --pm-on-brand: #ffffff;
 
   /* neutrals dedicated to sidebars, aligned with existing theme */
@@ -89,7 +89,7 @@
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
 
-  --pm-brand: #ff6c37;
+  --pm-brand: #0056a4;
   --pm-on-brand: #ffffff;
   --pm-surface: var(--sidebar);
   --pm-surface-2: oklch(0.205 0 0);

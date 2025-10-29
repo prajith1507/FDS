@@ -134,33 +134,15 @@ export function ScheduleDialog({
       const cronValue = formData.cronPreset === "custom" ? formData.customCron : formData.cronPreset
 
       if (isEditMode && existingSchedule) {
-        // Update existing schedule
-        const scheduleData: UpdateScheduleRequest = {
+        // Update existing schedule (uses same type as create)
+        const scheduleData: CreateScheduleRequest = {
           name: formData.name,
           description: formData.description,
+          function_id: functionId,
           enabled: formData.enabled,
           trigger: {
             cron: cronValue,
             timezone: formData.timezone,
-          },
-          params: {
-            testData: {},
-            timeout: formData.timeout,
-            retryOnFailure: formData.retryOnFailure,
-            maxRetries: formData.maxRetries,
-          },
-          notifications: {
-            onSuccess: formData.notifyOnSuccess,
-            onFailure: formData.notifyOnFailure,
-            webhook: formData.webhook || undefined,
-          },
-          meta: {
-            notes: formData.notes,
-            tags: formData.tags
-              .split(",")
-              .map((t) => t.trim())
-              .filter(Boolean),
-            priority: formData.priority,
           },
         }
 
@@ -177,26 +159,6 @@ export function ScheduleDialog({
             cron: cronValue,
             timezone: formData.timezone,
           },
-          params: {
-            testData: {},
-            timeout: formData.timeout,
-            retryOnFailure: formData.retryOnFailure,
-            maxRetries: formData.maxRetries,
-          },
-          notifications: {
-            onSuccess: formData.notifyOnSuccess,
-            onFailure: formData.notifyOnFailure,
-            webhook: formData.webhook || undefined,
-          },
-          meta: {
-            notes: formData.notes,
-            tags: formData.tags
-              .split(",")
-              .map((t) => t.trim())
-              .filter(Boolean),
-            priority: formData.priority,
-          },
-          createdBy: "admin",
         }
 
         const { createSchedule } = await import("@/lib/api-service")
@@ -452,7 +414,7 @@ export function ScheduleDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} style={{ backgroundColor: "#0056a4" }}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

@@ -6,6 +6,7 @@ import type React from "react"
 import "./globals.css"
 import { SWRConfigProvider } from "./swr-config"
 import { Toaster } from "@/components/ui/toaster"
+import { PagePersistence } from "@/components/page-persistence"
 
 export const metadata: Metadata = {
   title: "Database Viewer",
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="h-full">
       <body className={`h-full font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         <SWRConfigProvider>
+          <PagePersistence />
           <main className="h-full">
             {children}
           </main>

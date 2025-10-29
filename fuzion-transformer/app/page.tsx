@@ -150,7 +150,7 @@ export default function FunctionsListPage() {
             <h2 className="text-lg font-semibold mb-2">Failed to Load Functions</h2>
             <p className="text-sm text-muted-foreground">{error}</p>
           </div>
-          <Button onClick={loadFunctions}>Retry</Button>
+          <Button onClick={loadFunctions} style={{ backgroundColor: "#0056a4" }}>Retry</Button>
         </div>
       </div>
     )
@@ -169,7 +169,7 @@ export default function FunctionsListPage() {
               <Activity className="h-4 w-4 mr-2" />
               View Logs
             </Button>
-            <Button onClick={() => router.push("/editor")}>
+            <Button onClick={() => router.push("/editor")} style={{ backgroundColor: "#0056a4" }}>
               <Plus className="h-4 w-4 mr-2" />
               New Function
             </Button>
@@ -187,7 +187,7 @@ export default function FunctionsListPage() {
             <p className="text-sm text-muted-foreground mb-6 max-w-sm">
               Get started by creating your first data transformation function
             </p>
-            <Button onClick={() => router.push("/editor")}>
+            <Button onClick={() => router.push("/editor")} style={{ backgroundColor: "#0056a4" }}>
               <Plus className="h-4 w-4 mr-2" />
               Create Function
             </Button>

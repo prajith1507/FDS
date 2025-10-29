@@ -322,7 +322,7 @@ export function QuickScheduleDialog({
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} style={{ backgroundColor: "#0056a4" }}>
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />

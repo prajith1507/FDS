@@ -253,7 +253,7 @@ export default function LogsPage() {
             </div>
             <h2 className="text-lg font-semibold mb-2">Failed to Load Logs</h2>
             <p className="text-sm text-muted-foreground mb-4">{error}</p>
-            <Button onClick={loadLogs}>Retry</Button>
+            <Button onClick={loadLogs} style={{ backgroundColor: "#0056a4" }}>Retry</Button>
           </div>
         ) : logs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">

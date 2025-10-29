@@ -201,7 +201,7 @@ export function SaveFunctionDialog({
           <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={isSaving}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={!name.trim() || !shortDescription.trim() || isSaving}>
+          <Button onClick={handleSave} disabled={!name.trim() || !shortDescription.trim() || isSaving} style={{ backgroundColor: "#0056a4" }}>
             {isSaving
               ? existingFunction
                 ? "Updating..."
