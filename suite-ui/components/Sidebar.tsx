@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { 
   LayoutDashboard, 
   Database, 
@@ -71,12 +71,30 @@ export default function Sidebar({ activeTool, onToolChange }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [showProfileSettings, setShowProfileSettings] = useState(false)
 
+  // Load sidebar collapse state from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedCollapsed = localStorage.getItem('sidebarCollapsed')
+      if (savedCollapsed !== null) {
+        setIsCollapsed(savedCollapsed === 'true')
+      }
+    }
+  }, [])
+
   // Memoize filtered items to prevent re-computation
   const mainItems = useMemo(() => menuItems.filter(item => item.category === 'main'), [])
   const toolItems = useMemo(() => menuItems.filter(item => item.category === 'tools'), [])
 
-  // Optimize toggle handlers
-  const toggleCollapse = useCallback(() => setIsCollapsed(prev => !prev), [])
+  // Optimize toggle handlers and persist collapse state
+  const toggleCollapse = useCallback(() => {
+    setIsCollapsed(prev => {
+      const newValue = !prev
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebarCollapsed', String(newValue))
+      }
+      return newValue
+    })
+  }, [])
 
   return (
     <div className={clsx(
@@ -191,11 +209,9 @@ export default function Sidebar({ activeTool, onToolChange }: SidebarProps) {
           <button
             onClick={() => setShowProfileSettings(true)}
             className="w-full p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center"
-            title={user?.name || 'User Profile'}
+            title="Settings"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-              {user?.name?.charAt(0) || 'U'}
-            </div>
+            <Settings size={20} className="text-gray-700" />
           </button>
         ) : (
           <button
