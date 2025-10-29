@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { 
   LayoutDashboard, 
   Database, 
@@ -26,6 +26,7 @@ interface SidebarProps {
   onToolChange: (tool: Tool) => void
 }
 
+// Memoize static data to prevent recreation on each render
 const menuItems = [
   {
     id: 'dashboard' as Tool,
@@ -55,20 +56,25 @@ const menuItems = [
     description: 'Data processing engine',
     category: 'tools'
   }
-]
+] as const
 
 const serviceStatus = {
   'db-viewer': 'running',
   'postman': 'running', 
   'transformer': 'running'
-}
+} as const
 
 export default function Sidebar({ activeTool, onToolChange }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
 
-  const mainItems = menuItems.filter(item => item.category === 'main')
-  const toolItems = menuItems.filter(item => item.category === 'tools')
+  // Memoize filtered items to prevent re-computation
+  const mainItems = useMemo(() => menuItems.filter(item => item.category === 'main'), [])
+  const toolItems = useMemo(() => menuItems.filter(item => item.category === 'tools'), [])
+
+  // Optimize toggle handlers
+  const toggleCollapse = useCallback(() => setIsCollapsed(prev => !prev), [])
+  const toggleUserMenu = useCallback(() => setShowUserMenu(prev => !prev), [])
 
   return (
     <div className={clsx(
@@ -85,7 +91,7 @@ export default function Sidebar({ activeTool, onToolChange }: SidebarProps) {
             </div>
           )}
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={toggleCollapse}
             className="p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 text-black hover:text-black"
             title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             style={isCollapsed ? { margin: '0 auto' } : { marginLeft: 'auto' }}

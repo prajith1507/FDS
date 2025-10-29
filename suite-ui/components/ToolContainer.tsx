@@ -1,10 +1,13 @@
 'use client'
 
+import React, { useMemo, useCallback } from 'react'
 import { Tool } from './Sidebar'
 import { Database, Send, RefreshCw, Activity, Server, CheckCircle } from 'lucide-react'
+import Dashboard from './Dashboard'
 
 interface ToolContainerProps {
   activeTool: Tool
+  onToolChange?: (tool: Tool) => void
 }
 
 const toolUrls = {
@@ -12,9 +15,16 @@ const toolUrls = {
   'db-viewer': process.env.NEXT_PUBLIC_DB_VIEWER_URL || 'http://localhost:4001',
   'postman': process.env.NEXT_PUBLIC_POSTMAN_URL || 'http://localhost:4002',
   'transformer': process.env.NEXT_PUBLIC_TRANSFORMER_URL || 'http://localhost:4003'
-}
+} as const
 
-const toolConfig = {
+// Memoize tool configuration to prevent unnecessary re-renders
+const toolConfig: Record<Exclude<Tool, 'dashboard'>, {
+  name: string;
+  icon: any;
+  port: string;
+  description: string;
+  features: string[];
+}> = {
   'db-viewer': {
     name: 'Database Explorer',
     icon: Database,
@@ -38,78 +48,87 @@ const toolConfig = {
   }
 }
 
-export default function ToolContainer({ activeTool }: ToolContainerProps) {
-  const url = toolUrls[activeTool]
+export default function ToolContainer({ activeTool, onToolChange }: ToolContainerProps) {
+  // ALL HOOKS MUST BE CALLED AT THE TOP - BEFORE ANY CONDITIONAL RETURNS
+  
+  // Memoize URL to prevent unnecessary re-calculations
+  const url = useMemo(() => toolUrls[activeTool], [activeTool])
+  
+  // Memoize tool configuration to prevent unnecessary re-renders
+  const currentToolConfig = useMemo(() => 
+    activeTool !== 'dashboard' ? toolConfig[activeTool] : null, 
+    [activeTool]
+  )
 
-  if (activeTool === 'dashboard') {
-    return (
-      <div className="h-full bg-gray-50 overflow-auto">
-        <div className="max-w-7xl mx-auto p-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Development Suite Dashboard
-            </h1>
-            <p className="text-gray-600">
-              Monitor and manage your development tools from a unified interface
-            </p>
-          </div>
+  // Handle tool changes with useCallback to prevent re-renders
+  const handleToolChange = useCallback((tool: string) => {
+    if (onToolChange) {
+      onToolChange(tool as Tool)
+    }
+  }, [onToolChange])
 
-          {/* System Status */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <StatusCard
-              title="System Status"
-              value="Operational"
-              icon={<CheckCircle className="text-green-600" size={24} />}
-              status="success"
-            />
-            <StatusCard
-              title="Active Tools"
-              value="3 / 3"
-              icon={<Activity className="text-blue-600" size={24} />}
-              status="info"
-            />
-            <StatusCard
-              title="Total Services"
-              value="Running"
-              icon={<Server className="text-purple-600" size={24} />}
-              status="info"
-            />
-          </div>
-
-          {/* Tools Grid */}
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Available Tools</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {Object.entries(toolConfig).map(([key, config]) => (
-                <ToolCard key={key} {...config} />
-              ))}
-            </div>
-          </div>
-
-          {/* Usage Information */}
-          <div className="mt-8 bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              Quick Start Guide
-            </h3>
-            <div className="space-y-2 text-gray-600">
-              <p className="flex items-start gap-2">
-                <span className="text-blue-600 font-medium">1.</span>
-                Select a tool from the sidebar to access its interface
-              </p>
-              <p className="flex items-start gap-2">
-                <span className="text-blue-600 font-medium">2.</span>
-                All tools run on dedicated ports for isolation and performance
-              </p>
-              <p className="flex items-start gap-2">
-                <span className="text-blue-600 font-medium">3.</span>
-                Use the dashboard to monitor system status and tool availability
-              </p>
-            </div>
-          </div>
+  // Optimized iframe component with error boundaries - MOVED TO TOP
+  const IframeComponent = useMemo(() => (
+    <div className="h-full bg-white relative">
+      {/* Loading indicator */}
+      <div className="absolute inset-0 bg-gray-50 flex items-center justify-center z-10" id={`loading-indicator-${activeTool}`}>
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-600">Loading {currentToolConfig?.name}...</p>
         </div>
       </div>
-    )
+      
+      {/* Direct embedded iframe */}
+      <iframe
+        src={url || ''}
+        className="w-full h-full border-0"
+        title={`${activeTool} Tool`}
+        sandbox="allow-same-origin allow-scripts allow-forms allow-downloads allow-modals allow-popups allow-top-navigation allow-pointer-lock"
+        allow="clipboard-read; clipboard-write; microphone; camera; geolocation"
+        referrerPolicy="no-referrer-when-downgrade"
+        loading="eager"
+        onLoad={(e) => {
+          // Hide loading indicator when iframe loads
+          const loadingIndicator = document.getElementById(`loading-indicator-${activeTool}`)
+          if (loadingIndicator) {
+            loadingIndicator.style.display = 'none'
+          }
+          console.log(`${activeTool} tool loaded successfully`)
+        }}
+        onError={(e) => {
+          console.error(`Failed to load ${activeTool} tool:`, e)
+          // Show error message if iframe fails to load
+          const loadingIndicator = document.getElementById(`loading-indicator-${activeTool}`)
+          if (loadingIndicator) {
+            loadingIndicator.innerHTML = `
+              <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <p class="text-gray-800 font-medium mb-2">Failed to load ${currentToolConfig?.name}</p>
+                <p class="text-gray-600 text-sm mb-4">The tool may have iframe restrictions</p>
+                <a href="${url}" target="_blank" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  Open in New Tab
+                </a>
+              </div>
+            `
+          }
+        }}
+        style={{
+          border: 'none',
+          outline: 'none'
+        }}
+      />
+    </div>
+  ), [url, activeTool, currentToolConfig])
+
+  // NOW CONDITIONAL RENDERING AFTER ALL HOOKS
+  
+  // Optimized dashboard component
+  if (activeTool === 'dashboard') {
+    return <Dashboard key="dashboard" onToolChange={handleToolChange} />
   }
 
   if (!url) {
@@ -130,72 +149,5 @@ export default function ToolContainer({ activeTool }: ToolContainerProps) {
     )
   }
 
-  return (
-    <div className="h-full bg-white">
-      <iframe
-        src={url}
-        className="w-full h-full border-0"
-        title={`${activeTool} Tool`}
-        sandbox="allow-same-origin allow-scripts allow-forms allow-downloads allow-modals allow-popups"
-      />
-    </div>
-  )
-}
-
-interface ToolCardProps {
-  name: string
-  description: string
-  port: string
-  icon: any
-  features: string[]
-}
-
-function ToolCard({ name, description, port, icon: Icon, features }: ToolCardProps) {
-  return (
-    <div className="bg-white p-6 rounded-lg border border-gray-200 hover:border-blue-300 transition-all hover:shadow-md">
-      <div className="flex items-start justify-between mb-4">
-        <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-          <Icon className="text-blue-600" size={24} />
-        </div>
-        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">
-          Port {port}
-        </span>
-      </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{name}</h3>
-      <p className="text-gray-600 text-sm mb-4">{description}</p>
-      <div className="space-y-1.5">
-        {features.map((feature, index) => (
-          <div key={index} className="flex items-center gap-2 text-xs text-gray-600">
-            <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
-            {feature}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-interface StatusCardProps {
-  title: string
-  value: string
-  icon: React.ReactNode
-  status: 'success' | 'info' | 'warning'
-}
-
-function StatusCard({ title, value, icon, status }: StatusCardProps) {
-  const statusColors = {
-    success: 'border-green-200 bg-green-50',
-    info: 'border-blue-200 bg-blue-50',
-    warning: 'border-yellow-200 bg-yellow-50'
-  }
-
-  return (
-    <div className={`p-6 rounded-lg border ${statusColors[status]}`}>
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-gray-600">{title}</span>
-        {icon}
-      </div>
-      <div className="text-2xl font-bold text-gray-900">{value}</div>
-    </div>
-  )
+  return IframeComponent
 }
