@@ -16,10 +16,10 @@ npm run dev
 ```
 
 This will automatically start:
-- 🎛️ **Suite Dashboard** → http://localhost:3000
-- 🗄️ **DB Viewer** → http://localhost:4001  
-- 🚀 **Postman** → http://localhost:4002
-- ⚡ **Transformer** → http://localhost:4003
+- 🎛️ **Suite Dashboard** → http://145.223.23.191:3000
+- 🗄️ **DB Viewer** → http://145.223.23.191:4001  
+- 🚀 **Postman** → http://145.223.23.191:4002
+- ⚡ **Transformer** → http://145.223.23.191:4003
 
 ## 📊 What Happens When You Run `npm run dev`
 
@@ -100,11 +100,11 @@ npm run dev
 
 Once running, open your browser to:
 
-- **Main Dashboard**: http://localhost:3000
+- **Main Dashboard**: http://145.223.23.191:3000
 - **Individual Tools** (accessible via dashboard sidebar):
-  - DB Viewer: http://localhost:4001
-  - Postman: http://localhost:4002
-  - Transformer: http://localhost:4003
+  - DB Viewer: http://145.223.23.191:4001
+  - Postman: http://145.223.23.191:4002
+  - Transformer: http://145.223.23.191:4003
 
 ## 🎨 Features
 
@@ -164,7 +164,7 @@ FDS/
 ## 🎯 Next Steps
 
 1. **Start Development**: `npm run dev`
-2. **Open Dashboard**: http://localhost:3000
+2. **Open Dashboard**: http://145.223.23.191:3000
 3. **Navigate Between Tools**: Use the sidebar in the dashboard
 4. **Develop Independently**: Each tool can be modified without affecting others
 
