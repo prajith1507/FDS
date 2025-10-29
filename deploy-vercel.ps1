@@ -55,8 +55,9 @@ foreach ($project in $projects) {
             
             # Deploy to Vercel
             Write-Host "   Deploying to Vercel..." -ForegroundColor Gray
-            $deployOutput = vercel --prod --yes 2>&1
-            
+            # Use --yes for non-interactive and --debug to surface more info
+            $deployOutput = vercel --prod --yes --debug 2>&1
+
             if ($LASTEXITCODE -eq 0) {
                 $url = ($deployOutput | Select-String "https://.*\.vercel\.app").Matches.Value
                 if ($url) {
@@ -66,10 +67,14 @@ foreach ($project in $projects) {
                     $successful++
                 } else {
                     Write-Host "   Deployed but URL not captured" -ForegroundColor Yellow
+                    Write-Host "   Deployment output:" -ForegroundColor Gray
+                    $deployOutput | ForEach-Object { Write-Host "      $_" }
                     $successful++
                 }
             } else {
                 Write-Host "   Deployment failed" -ForegroundColor Red
+                Write-Host "   Vercel output:" -ForegroundColor Gray
+                $deployOutput | ForEach-Object { Write-Host "      $_" }
                 $failed++
             }
         } else {
