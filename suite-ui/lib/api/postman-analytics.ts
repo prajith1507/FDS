@@ -227,7 +227,7 @@ export async function fetchPostmanAnalytics(): Promise<PostmanAnalytics> {
     
     // Handle different response formats
     let collectionsData: any[] = [];
-    
+        
     if (Array.isArray(data)) {
       console.log('[Postman Analytics] Data is array');
       collectionsData = data;
