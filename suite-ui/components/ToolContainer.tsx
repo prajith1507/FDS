@@ -12,9 +12,9 @@ interface ToolContainerProps {
 
 const toolUrls = {
   'dashboard': null, // Dashboard is handled locally
-  'db-viewer': process.env.NEXT_PUBLIC_DB_VIEWER_URL || 'http://localhost:4001',
-  'postman': process.env.NEXT_PUBLIC_POSTMAN_URL || 'http://localhost:4002',
-  'transformer': process.env.NEXT_PUBLIC_TRANSFORMER_URL || 'http://localhost:4003'
+  'db-viewer': process.env.NEXT_PUBLIC_DB_VIEWER_URL || 'http://145.223.23.191:4001',
+  'postman': process.env.NEXT_PUBLIC_POSTMAN_URL || 'http://145.223.23.191:4002',
+  'transformer': process.env.NEXT_PUBLIC_TRANSFORMER_URL || 'http://145.223.23.191:4003'
 } as const
 
 // Memoize tool configuration to prevent unnecessary re-renders

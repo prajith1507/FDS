@@ -6,7 +6,7 @@ This application uses environment variables for API configuration. Create a `.en
 
 ```bash
 # API Configuration
-NEXT_PUBLIC_API_BASE_URL=http://localhost
+NEXT_PUBLIC_API_BASE_URL=http://145.223.23.191
 NEXT_PUBLIC_SAVE_API_ENDPOINT=/api/apis/create
 
 # Collections API (if different from save API)
