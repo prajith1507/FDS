@@ -315,7 +315,7 @@ export function DatabaseConfigForm({
                       </Label>
                       <Input
                         id="host"
-                        placeholder="145.223.23.191"
+                        placeholder="localhost"
                         value={config.host}
                         onChange={(e) => updateConfig('host', e.target.value)}
                       />
@@ -579,13 +579,13 @@ function getDefaultVersion(type: string): string {
 
 function getConnectionStringPlaceholder(type: string): string {
   const placeholders: Record<string, string> = {
-    postgresql: 'postgresql://username:password@145.223.23.191:5432/database_name',
-    mysql: 'mysql://username:password@145.223.23.191:3306/database_name',
-    mongodb: 'mongodb://username:password@145.223.23.191:27017/database_name?authSource=admin',
-    mariadb: 'mariadb://username:password@145.223.23.191:3306/database_name',
-    redis: 'redis://username:password@145.223.23.191:6379/0',
-    clickhouse: 'clickhouse://username:password@145.223.23.191:8123/database_name',
-    elasticsearch: 'http://username:password@145.223.23.191:9200'
+    postgresql: 'postgresql://username:password@localhost:5432/database_name',
+    mysql: 'mysql://username:password@localhost:3306/database_name',
+    mongodb: 'mongodb://username:password@localhost:27017/database_name?authSource=admin',
+    mariadb: 'mariadb://username:password@localhost:3306/database_name',
+    redis: 'redis://username:password@localhost:6379/0',
+    clickhouse: 'clickhouse://username:password@localhost:8123/database_name',
+    elasticsearch: 'http://username:password@localhost:9200'
   }
   return placeholders[type] || ''
 }

@@ -40,7 +40,7 @@ const SERVICES = [
     name: 'DB-VIEWER',
     dir: 'fuzion-db-viewer',
     port: process.env.DB_VIEWER_PORT || 4001,
-    url: process.env.DB_VIEWER_URL || 'http://145.223.23.191:4001',
+    url: process.env.DB_VIEWER_URL || 'http://localhost:4001',
     color: '\x1b[32m', // Green
     priority: 1
   },
@@ -48,7 +48,7 @@ const SERVICES = [
     name: 'POSTMAN',
     dir: 'fuzion-postman', 
     port: process.env.POSTMAN_PORT || 4002,
-    url: process.env.POSTMAN_URL || 'http://145.223.23.191:4002',
+    url: process.env.POSTMAN_URL || 'http://localhost:4002',
     color: '\x1b[33m', // Yellow
     priority: 2
   },
@@ -56,7 +56,7 @@ const SERVICES = [
     name: 'TRANSFORMER',
     dir: 'fuzion-transformer',
     port: process.env.TRANSFORMER_PORT || 4003,
-    url: process.env.TRANSFORMER_URL || 'http://145.223.23.191:4003',
+    url: process.env.TRANSFORMER_URL || 'http://localhost:4003',
     color: '\x1b[35m', // Magenta
     priority: 3
   },
@@ -64,7 +64,7 @@ const SERVICES = [
     name: 'SUITE-DASHBOARD',
     dir: 'suite-ui',
     port: process.env.SUITE_DASHBOARD_PORT || 3000,
-    url: process.env.SUITE_DASHBOARD_URL || 'http://145.223.23.191:3000',
+    url: process.env.SUITE_DASHBOARD_URL || 'http://localhost:3000',
     color: '\x1b[34m', // Blue
     priority: 4,
     isMain: true

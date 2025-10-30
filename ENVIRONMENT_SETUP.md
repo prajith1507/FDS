@@ -146,9 +146,9 @@ SUPPORTED_FILE_TYPES=json,xml,csv,yaml
 ### Suite UI (`suite-ui/.env.local`)
 ```bash
 # Main dashboard specific
-NEXT_PUBLIC_DB_VIEWER_URL=http://145.223.23.191:4001
-NEXT_PUBLIC_POSTMAN_URL=http://145.223.23.191:4002
-NEXT_PUBLIC_TRANSFORMER_URL=http://145.223.23.191:4003
+NEXT_PUBLIC_DB_VIEWER_URL=http://localhost:4001
+NEXT_PUBLIC_POSTMAN_URL=http://localhost:4002
+NEXT_PUBLIC_TRANSFORMER_URL=http://localhost:4003
 ```
 
 ## Troubleshooting

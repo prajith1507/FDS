@@ -4,7 +4,7 @@
  */
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://145.223.23.191:4001";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4001";
 
 export interface DatabaseQueryParams {
   collection?: string;

@@ -27,9 +27,9 @@ interface RealTimeAnalytics {
 }
 
 // API endpoints for real-time analytics from local services
-const DB_VIEWER_URL = 'http://145.223.23.191:4001'
-const POSTMAN_URL = 'http://145.223.23.191:4002' 
-const TRANSFORMER_URL = 'http://145.223.23.191:4003'
+const DB_VIEWER_URL = 'http://localhost:4001'
+const POSTMAN_URL = 'http://localhost:4002' 
+const TRANSFORMER_URL = 'http://localhost:4003'
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://obl-syncapi.fuzionest.com'
 
 // Hook for real-time analytics data

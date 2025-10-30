@@ -23,10 +23,10 @@ npm run start
 ```
 
 #### 3. Access Your Applications
-- 🎛️ **Suite Dashboard** → http://145.223.23.191:3000
-- 🗄️ **DB Viewer** → http://145.223.23.191:4001  
-- 🚀 **Postman** → http://145.223.23.191:4002
-- ⚡ **Transformer** → http://145.223.23.191:4003
+- 🎛️ **Suite Dashboard** → http://localhost:3000
+- 🗄️ **DB Viewer** → http://localhost:4001  
+- 🚀 **Postman** → http://localhost:4002
+- ⚡ **Transformer** → http://localhost:4003
 
 ## 🔧 Individual Service Management
 
@@ -119,10 +119,10 @@ services:
 
 ### Manual Health Check
 ```bash
-curl http://145.223.23.191:3000/api/health    # Suite dashboard
-curl http://145.223.23.191:4001/api/health    # DB viewer
-curl http://145.223.23.191:4002/api/health    # Postman
-curl http://145.223.23.191:4003/api/health    # Transformer
+curl http://localhost:3000/api/health    # Suite dashboard
+curl http://localhost:4001/api/health    # DB viewer
+curl http://localhost:4002/api/health    # Postman
+curl http://localhost:4003/api/health    # Transformer
 ```
 
 ### Automated Health Monitoring
